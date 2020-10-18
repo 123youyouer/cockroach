@@ -998,9 +998,17 @@ func EncodeSecondaryIndex(
 
 	// Add the extra columns - they are encoded in ascending order which is done
 	// by passing nil for the encoding directions.
-	extraKey, _, err := EncodeColumns(secondaryIndex.ExtraColumnIDs, nil,
-		colMap, values, nil)
-	if err != nil {
+	var extraKey []byte;
+	var encodeColumnsErr error;
+	if secondaryIndex.Unique && secondaryIndex.ExtraColumnIDs==nil{
+		extraKey, _, encodeColumnsErr = EncodeColumns(tableDesc.TableDesc().PrimaryIndex.ColumnIDs, nil,
+			colMap, values, nil)
+	}else{
+		extraKey, _, encodeColumnsErr = EncodeColumns(secondaryIndex.ExtraColumnIDs, nil,
+			colMap, values, nil)
+	}
+
+	if encodeColumnsErr != nil {
 		return []IndexEntry{}, err
 	}
 
